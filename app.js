@@ -40,12 +40,11 @@ client.login(token);
 
 // Dependencies
 var express = require('express');
-var http = require('http');
 var path = require('path');
 var app = express();
-var server = http.Server(app);
+var server = require('http').createServer(app);
 var socketIO = require('socket.io');
-var io = socketIO.listen(server);
+var io = require('socket.io')(server);
 
 
 app.use('/', express.static(__dirname + '/'));

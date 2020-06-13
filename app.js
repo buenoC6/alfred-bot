@@ -48,9 +48,10 @@ var socketIO = require('socket.io');
 var io = socketIO.listen(server);
 
 
-
+app.use('/', express.static(__dirname + '/'));
+// Routing
 app.get('/', function(request, response) {
-  response.sendFile(path.join('index.html'));
+  response.sendFile(path.join(__dirname, 'index.html'));
 });
 // Starts the server.
 server.listen(8080, function() {

@@ -1,3 +1,4 @@
+var token = process.env.TOKEN;
 const Discord = require('discord.js');
 const fs = require('fs');
 const client = new Discord.Client();
@@ -35,7 +36,7 @@ client.on('message', msg => {
 });
 
 
-client.login("NzE5ODk0MjE2Mjg4ODk1MDE4.Xt-ETQ.COaZJxwyvfa1d23wbDE48sA6CDQ");
+client.login(token);
 
 // Dependencies
 var express = require('express');

@@ -60,6 +60,7 @@ server.listen(8080, function() {
 
 io.on('connection', function(socket) {
   console.log("Un Soundboarder s'est connecté.");
+
   socket.on('sound', function(file) {
     console.log(file+" a été activé");
     client.channels.cache.get('445294788976050186').join()
@@ -69,4 +70,10 @@ io.on('connection', function(socket) {
     })
     .catch(console.error);
   });
+
+  socket.on('test', function() {
+    client.channels.cache.get('566673551394865254').send('Hello world!');
+  });
+
+
 });

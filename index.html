@@ -50,6 +50,7 @@
       $( ".block" ).click(function() {
         var file = $(this).attr('id');
         socket.emit("sound",file);
+        socket.emit("test");
       });
   });
   </script>

@@ -47,11 +47,10 @@ var server = http.Server(app);
 var socketIO = require('socket.io');
 var io = socketIO.listen(server);
 
-app.set('port', 8080);
-app.use('/static', express.static(__dirname + '/static'));
-// Routing
+
+
 app.get('/', function(request, response) {
-  response.sendFile(path.join(__dirname, 'index.html'));
+  response.sendFile(path.join('index.html'));
 });
 // Starts the server.
 server.listen(8080, function() {

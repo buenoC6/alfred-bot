@@ -40,14 +40,15 @@ client.login(token);
 
 // Dependencies
 var express = require('express');
+var http = require('http');
 var path = require('path');
 var app = express();
-var server = require('http').createServer(app);
+var server = http.Server(app);
 var socketIO = require('socket.io');
-var io = require('socket.io')(server);
+var io = socketIO.listen(server);
 
-
-app.use('/', express.static(__dirname + '/'));
+app.set('port', 8080);
+app.use('/static', express.static(__dirname + '/static'));
 // Routing
 app.get('/', function(request, response) {
   response.sendFile(path.join(__dirname, 'index.html'));

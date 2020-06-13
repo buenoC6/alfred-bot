@@ -1,0 +1,128 @@
+{
+  "library":[
+    {
+      "cmd":"Alfredo plus de puissance stp",
+      "path":"sound/plus_de_puissance.mp3"
+    },
+    {
+      "cmd":"Alfredo vald stp",
+      "path":"sound/vald.mp3"
+    },
+    {
+      "cmd":"Alfredo le refrain stp",
+      "path":"sound/le_refrain.mp3"
+    },
+    {
+      "cmd":"Alfredo regis stp",
+      "path":"sound/regis.mp3"
+    },
+    {
+      "cmd":"Alfredo Arthur stp",
+      "path":"sound/arthurHB.mp3"
+    },
+    {
+      "cmd":"Alfredo ALERTE GENERALE",
+      "path":"sound/alerteGen.mp3"
+    },
+    {
+      "cmd":"Alfredo le micro de Nath",
+      "path":"sound/nathmicro.mp3"
+    },
+    {
+      "cmd":"Alfredo sarko",
+      "path":"sound/quel_indignite.mp3"
+    },
+    {
+      "cmd":"Alfredo un peu de shreksophone",
+      "path":"sound/shreksophone.mp3"
+    },
+    {
+      "cmd":"Alfredo c'est mort",
+      "path":"sound/coffin.mp3"
+    },
+    {
+      "cmd":"Alfredo le marchand de cailloux",
+      "path":"sound/cailloux.mp3"
+    },
+    {
+      "cmd":"Alfredo le tgv",
+      "path":"sound/lexpresse.mp3"
+    },
+    {
+      "cmd":"Alfredo motherfucker",
+      "path":"sound/motherfucker.mp3"
+    },
+    {
+      "cmd":"Alfredo petit coup d'intervention",
+      "path":"sound/intervention 420.mp3"
+    },
+    {
+      "cmd":"Alfredo infiltration",
+      "path":"sound/007.mp3"
+    },
+    {
+      "cmd":"Alfredo des applaudissements",
+      "path":"sound/applause.mp3"
+    },
+    {
+      "cmd":"Alfredo pleure stp",
+      "path":"sound/bestCryEver.mp3"
+    },
+    {
+      "cmd":"Alfredo DO IT",
+      "path":"sound/DOIT.mp3"
+    },
+    {
+      "cmd":"Alfredo le fbi",
+      "path":"sound/FBI.mp3"
+    },
+    {
+      "cmd":"Alfredo jackson sait",
+      "path":"sound/heFuckedUp.mp3"
+    },
+    {
+      "cmd":"Alfredo les enfants",
+      "path":"sound/kidsYEAH.mp3"
+    },
+    {
+      "cmd":"Alfredo on bat en retraite",
+      "path":"sound/missionFailed.mp3"
+    },
+    {
+      "cmd":"Alfredo une nuke stp",
+      "path":"sound/nuke.mp3"
+    },
+    {
+      "cmd":"Alfredo le petit poney",
+      "path":"sound/petitPoney.mp3"
+    },
+    {
+      "cmd":"Alfredo coquin",
+      "path":"sound/pornhub.mp3"
+    },
+    {
+      "cmd":"Alfredo RISITAS",
+      "path":"sound/risitas.mp3"
+    },
+    {
+      "cmd":"Alfredo triste",
+      "path":"sound/sadSong.mp3"
+    },
+    {
+      "cmd":"Alfredo un iceberg",
+      "path":"sound/titanicFluted.mp3"
+    },
+    {
+      "cmd":"Alfredo on veut Walker",
+      "path":"sound/walkerTexas.mp3"
+    },
+    {
+      "cmd":"Alfredo pourquoi tu cours",
+      "path":"sound/whyareyourunning.mp3"
+    },
+    {
+      "cmd":"Alfredo WTF",
+      "path":"sound/wtfBOOM.mp3"
+    }
+  ]
+}

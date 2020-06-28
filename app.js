@@ -75,5 +75,4 @@ io.on('connection', function(socket) {
     client.channels.cache.get('566673551394865254').send('Hello world!');
   });
 
-
 });

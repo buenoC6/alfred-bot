@@ -51,6 +51,7 @@
         var file = $(this).attr('id');
         socket.emit("sound",file);
         socket.emit("test");
+        alert(file);
       });
   });
   </script>

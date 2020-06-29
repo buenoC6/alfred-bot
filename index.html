@@ -34,7 +34,7 @@
     <script>
     $.getJSON("static/library.json", function (data) {
         $.each(data.library, function (index, value) {
-           $('#buttonContainer').append('<button onclick="testfct()" class="block" id="'+value.path+'">'+value.cmd+'</button>');
+           $('#buttonContainer').append('<button onclick="testfct('+value.path+')" class="block" id="'+value.path+'">'+value.cmd+'</button>');
         });
     });
     </script>
@@ -46,16 +46,17 @@
   </body>
   <script>
   var socket = io();
-  $( document ).ready(function() {
+  /*$( document ).ready(function() {
       $( ".block" ).click(function() {
         var file = $(this).attr('id');
         socket.emit("sound",file);
         socket.emit("test");
         alert(file);
       });
-  });
-  function testfct(){
-    alert("test");
+  });*/
+  function testfct(file){
+    socket.emit("sound",file);
+    socket.emit("test");
   }
   </script>
 </html>

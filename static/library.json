@@ -123,6 +123,10 @@
     {
       "cmd":"Alfredo WTF",
       "path":"sound/wtfBOOM.mp3"
+    },
+    {
+      "cmd":"Alfredo CENA",
+      "path":"sound/CENA.mp3"
     }
   ]
 }

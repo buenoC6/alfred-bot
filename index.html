@@ -46,17 +46,10 @@
   </body>
   <script>
   var socket = io();
-  /*$( document ).ready(function() {
-      $( ".block" ).click(function() {
-        var file = $(this).attr('id');
-        socket.emit("sound",file);
-        socket.emit("test");
-        alert(file);
-      });
-  });*/
-  function testfct(file){
-    socket.emit("sound",file);
-    socket.emit("test");
-  }
+  $( document ).on("click", ".block", function() {
+      var file = $(this).attr('id');
+      socket.emit("sound",file);
+  });
+
   </script>
 </html>

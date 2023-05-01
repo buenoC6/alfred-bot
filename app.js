@@ -1,10 +1,9 @@
 const {
-    joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus, entersState,
-    NoSubscriberBehavior
+    joinVoiceChannel, createAudioPlayer, createAudioResource
 } = require('@discordjs/voice');
 var token = process.env.CLIENT_TOKEN;
 const fs = require('fs');
-const { Client, GatewayIntentBits } = require('discord.js');
+const {Client, GatewayIntentBits} = require('discord.js');
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,

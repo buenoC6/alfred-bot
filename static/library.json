@@ -127,6 +127,10 @@
     {
       "cmd":"Alfredo CENA",
       "path":"sound/CENA.mp3"
+    },
+    {
+      "cmd":"Alfredo CENA PAS POSSIBLE",
+      "path":"sound/cestQuiOhNonCestPasPossible-JohnCenaMeme.mp3"
     }
   ]
 }

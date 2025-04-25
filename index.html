@@ -1,55 +1,63 @@
-<html>
-  <head>
-    <title>Soundboard</title>
-    <style>
-      h1{
-        text-align: center;
-      }
-      #buttonContainer{
-        padding-top: 30px;
-      }
-      .block {
-        display: block;
-        width: 100%;
-        border: 1px solid black;
-        background-color: #4CAF50;
-        padding: 14px 28px;
-        font-size: 16px;
-        cursor: pointer;
-        text-align: center;
-      }
-      .block:hover {
-        display: block;
-        width: 100%;
-        border: 1px solid black;
-        background-color: #63c266;
-        padding: 14px 28px;
-        font-size: 16px;
-        cursor: pointer;
-        text-align: center;
-      }
-    </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-    $.getJSON("static/library.json", function (data) {
-        $.each(data.library, function (index, value) {
-           $('#buttonContainer').append('<button onclick="testfct('+value.path+')" class="block" id="'+value.path+'">'+value.cmd+'</button>');
-        });
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Soundboard - Alfredo</title>
+  <style>
+    h1 {
+      text-align: center;
+    }
+
+    #buttonContainer {
+      padding-top: 30px;
+      width: 80%;
+      margin: auto;
+    }
+
+    .block {
+      display: block;
+      width: 100%;
+      border: 1px solid black;
+      background-color: #4CAF50;
+      padding: 14px 28px;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: center;
+      margin-bottom: 10px;
+      transition: background-color 0.2s ease;
+    }
+
+    .block:hover {
+      background-color: #63c266;
+    }
+  </style>
+</head>
+<body>
+<h1>Soundboard - Alfredo</h1>
+<div id="buttonContainer"></div>
+
+<!-- Scripts -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  // Charger la bibliothèque de sons et générer les boutons
+  $.getJSON("/static/library.json", function (data) {
+    data.library.forEach(item => {
+      const button = $('<button>')
+              .addClass('block')
+              .attr('data-path', item.path)
+              .text(item.cmd);
+      $('#buttonContainer').append(button);
     });
-    </script>
-  </head>
-  <body>
-    <h1>Soundboard - Alfredo</h1>
-      <div id="buttonContainer">
-      </div>
-  </body>
-  <script>
-  var socket = io();
-  $( document ).on("click", ".block", function() {
-      var file = $(this).attr('id');
-      socket.emit("sound",file);
   });
 
-  </script>
+  const socket = io();
+
+  // Quand un bouton est cliqué
+  $(document).on("click", ".block", function () {
+    const file = $(this).data('path');
+    socket.emit("sound", file);
+  });
+</script>
+</body>
 </html>

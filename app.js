@@ -1,98 +1,194 @@
-const {
-    joinVoiceChannel, createAudioPlayer, createAudioResource
-} = require('@discordjs/voice');
-var token = process.env.CLIENT_TOKEN;
-const fs = require('fs');
-const {Client, GatewayIntentBits} = require('discord.js');
+// ----------------- IMPORTS -----------------
+import fs from 'fs';
+import path from 'path';
+import express from 'express';
+import http from 'http';
+import { Client, GatewayIntentBits, Partials, Events } from 'discord.js';
+import {
+    joinVoiceChannel,
+    createAudioPlayer,
+    createAudioResource,
+    AudioPlayerStatus,
+    NoSubscriberBehavior
+} from '@discordjs/voice';
+import dotenv from 'dotenv';
+import {fileURLToPath} from "url";
+import { Server } from 'socket.io';
+import ytdl from "ytdl-core";
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const jsonPath = path.join(__dirname, 'static', 'library.json');
+
+// ----------------- CHARGEMENT DU JSON -----------------
+const rawdata = fs.readFileSync(jsonPath);
+const myJson = JSON.parse(rawdata).library;
+
+// ----------------- DISCORD BOT -----------------
+const token = process.env.CLIENT_TOKEN;
+console.log("Token lu :", token); // Ne laisse pas ça en prod évidemment
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildVoiceStates,
-    ]
-})
-let rawdata = fs.readFileSync('static/library.json')
-let myJson = JSON.parse(rawdata).library;
+        GatewayIntentBits.GuildVoiceStates
+    ],
+    partials: [Partials.Channel]
+});
 
-client.on("ready", function () {
+client.once(Events.ClientReady, () => {
     console.log("ALFRED est Connecté");
     client.user.setActivity('Alfredo aide moi');
-})
-
-client.on('message', message => {
-    console.log('test');
-    for (var i = 0, len = myJson.length; i < len; i++) {
-        if (message.content === myJson[i].cmd) {
-            var path = myJson[i].path + "";
-            const channel = message.member.voice.channel;
-            channel.join()
-                .then(connection => {
-                    const dispatcher = connection.play(path, {volume: 0.5});
-                    ;
-                    dispatcher.on("end", end => {
-                        connection.disconnect
-                    });
-                })
-                .catch(console.error);
-        }
-    }
 });
 
-client.on('message', msg => {
-    if (msg.content === 'Alfredo aide moi') {
-        var helpList = "";
-        for (var i = 0, len = myJson.length; i < len; i++) {
-            helpList += myJson[i].cmd + "\n";
+client.on(Events.MessageCreate, async (message) => {
+    if (message.author.bot) return;
+
+    // Youtube link
+    if (message.content.startsWith('!play ')) {
+        const url = message.content.replace('!play ', '').trim();
+        if (!ytdl.validateURL(url)) {
+            message.reply("Ce n'est pas un lien YouTube valide.");
+            return;
         }
-        msg.reply('Voici les services que je propose mon brave: \n' + helpList);
+
+        const channel = message.member.voice.channel;
+        if (!channel) {
+            message.reply("Tu dois être dans un canal vocal pour jouer de la musique.");
+            return;
+        }
+
+        try {
+            const connection = joinVoiceChannel({
+                channelId: channel.id,
+                guildId: channel.guild.id,
+                adapterCreator: channel.guild.voiceAdapterCreator,
+            });
+
+            // Créer la ressource audio avec ytdl-core
+            const stream = ytdl(url, { filter: 'audioonly' });
+            const resource = createAudioResource(stream, { inputType: 1 });  // inputType: 1 est pour l'audio
+
+            // Créer un player et le connecter au canal vocal
+            const player = createAudioPlayer();
+            player.play(resource);
+
+            connection.subscribe(player);
+
+            player.on(AudioPlayerStatus.Idle, () => {
+                connection.disconnect(); // Déconnexion lorsque la lecture est terminée
+            });
+
+        } catch (error) {
+            console.error(error);
+            message.reply("Il y a eu un problème pour jouer l'audio.");
+        }
     }
+
+    // Commande d'aide
+    if (message.content === 'Alfredo aide moi') {
+        const helpList = myJson.map(sound => sound.cmd).join('\n');
+        message.reply('Voici les services que je propose mon brave:\n' + helpList);
+        return;
+    }
+
+    // Recherche et exécution d'un son
+    const found = myJson.find(sound => sound.cmd === message.content);
+    if (!found) return;
+
+    const channel = message.member?.voice?.channel;
+    if (!channel) {
+        message.reply("Tu dois être dans un salon vocal pour utiliser cette commande !");
+        return;
+    }
+
+    const connection = joinVoiceChannel({
+        channelId: channel.id,
+        guildId: channel.guild.id,
+        adapterCreator: channel.guild.voiceAdapterCreator,
+    });
+
+    const player = createAudioPlayer({
+        behaviors: {
+            noSubscriber: NoSubscriberBehavior.Stop,
+        },
+    });
+
+    const resource = createAudioResource(found.path);
+    connection.subscribe(player);
+    player.play(resource);
+
+    player.on(AudioPlayerStatus.Idle, () => {
+        connection.destroy();
+    });
+
+    player.on('error', error => {
+        console.error("Erreur audio :", error);
+        connection.destroy();
+    });
 });
 
-
-client.login(token);
-
-// Dependencies
-var express = require('express');
-var http = require('http');
-var path = require('path');
-var app = express();
-var server = http.Server(app);
-var io = require('socket.io')(server);
+// ----------------- SERVEUR EXPRESS -----------------
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.set('port', 8080);
-app.use('/static', express.static(__dirname + '/static'));
-// Routing
-app.get('/', function (request, response) {
-    response.sendFile(path.join(__dirname, 'index.html'));
+app.use('/static', express.static(path.join(__dirname, 'static')));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
-// Starts the server.
-server.listen(8080, function () {
+
+server.listen(8080, () => {
     console.log('Starting server on port 8080');
 });
 
-io.on('connection', function (socket) {
+// ----------------- SOCKET.IO -----------------
+io.on('connection', (socket) => {
     console.log("Un Soundboarder s'est connecté.");
 
-    socket.on('sound', function (file) {
-        console.log(file + " a été activé");
-        const currentChannel = client.channels.cache.get('954088649690079292')
+    socket.on('sound', async (filePath) => {
+        console.log(filePath + " a été activé");
+
+        // Recommandé : sécuriser cette partie (valider le chemin)
+        const currentChannel = client.channels.cache.get('954088649690079292');
+        if (!currentChannel || currentChannel.type !== 2) return;
 
         const connection = joinVoiceChannel({
             channelId: currentChannel.id,
-            guildId: currentChannel.guildId,
-            adapterCreator: currentChannel.guild.voiceAdapterCreator
+            guildId: currentChannel.guild.id,
+            adapterCreator: currentChannel.guild.voiceAdapterCreator,
         });
 
-        const player = createAudioPlayer()
-        const resource = createAudioResource(file)
-        connection.subscribe(player)
+        const player = createAudioPlayer({
+            behaviors: {
+                noSubscriber: NoSubscriberBehavior.Pause,
+            },
+        });
 
-        player.play(resource)
+        const resource = createAudioResource(filePath);
+        connection.subscribe(player);
+        player.play(resource);
+
+        player.on(AudioPlayerStatus.Idle, () => {
+            connection.destroy();
+        });
+
+        player.on('error', error => {
+            console.error("Erreur audio (web):", error);
+            connection.destroy();
+        });
     });
 
-    socket.on('test', function () {
-        client.channels.cache.get('566673551394865254').send('Hello world!');
+    socket.on('test', () => {
+        client.channels.cache.get('566673551394865254')?.send('Hello world!');
     });
 });
+
+// ----------------- LOGIN -----------------
+client.login(token);

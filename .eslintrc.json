@@ -1,13 +1,11 @@
 {
     "env": {
-        "browser": true,
+        "node": true,
         "es2021": true
     },
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended"
-    ],
-    "overrides": [
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
@@ -18,5 +16,7 @@
         "@typescript-eslint"
     ],
     "rules": {
+        // Tu peux ajouter tes règles ici, par ex :
+        // "no-console": "warn"
     }
 }

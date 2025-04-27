@@ -1,53 +1,149 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <title>Soundboard - Alfredo</title>
+  <link
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          rel="stylesheet"
+  />
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Arial", sans-serif;
+    }
+
+    body {
+      background: #121212; /* Fond sombre */
+      color: #fff; /* Texte blanc pour contraster */
+    }
+
     h1 {
       text-align: center;
+      font-size: 3rem;
+      margin: 30px 0;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
+      color: #f4f4f4;
     }
 
     #buttonContainer {
-      padding-top: 30px;
-      width: 80%;
-      margin: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 20px;
     }
 
     .block {
+      flex: 1;
+      color: white;
       display: block;
-      width: 100%;
-      border: 1px solid black;
-      background-color: #4CAF50;
-      padding: 14px 28px;
-      font-size: 16px;
+      min-width: 400px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      padding: 15px 25px;
+      font-size: 1.2rem;
+      text-align: left;
+      border-radius: 12px;
       cursor: pointer;
-      text-align: center;
-      margin-bottom: 10px;
-      transition: background-color 0.2s ease;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
     }
 
-    .block:hover {
-      background-color: #63c266;
+    .block .fa-play {
+      margin-right: 10px;
+      font-size: 1.5rem;
+    }
+
+    .block .fa-spinner {
+      margin-right: 10px;
+      font-size: 1.5rem;
+      animation: spin 1s infinite linear;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .block:hover.block:hover:not(.disabled) {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+    }
+
+    .block:active.block:active:not(.disabled) {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .block:focus.block:focus:not(.disabled) {
+      outline: none;
+    }
+
+    .disabled {
+      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
-<h1>Soundboard - Alfredo</h1>
-<div id="buttonContainer"></div>
+<div>
+  <h1>Soundboard - Alfredo</h1>
+  <div
+          class="youtube-input-container"
+          style="text-align: center; margin: 20px"
+  >
+    <input
+            id="youtubeUrl"
+            type="text"
+            placeholder="Entrez une URL YouTube"
+            style="
+            padding: 10px;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+          "
+    />
+    <button
+            id="playYoutubeSound"
+            style="
+            padding: 10px 20px;
+            border-radius: 8px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+          "
+    >
+      Jouer le son
+    </button>
+  </div>
+  <div id="buttonContainer"></div>
+</div>
 
 <!-- Scripts -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
+  let isPlaying = false;
+
   // Charger la bibliothèque de sons et générer les boutons
   $.getJSON("/static/library.json", function (data) {
-    data.library.forEach(item => {
-      const button = $('<button>')
-              .addClass('block')
-              .attr('data-path', item.path)
-              .text(item.cmd);
-      $('#buttonContainer').append(button);
+    data.library.forEach((item) => {
+      const button = $("<button>")
+              .addClass("block")
+              .attr("data-path", item.path)
+              .html('<i class="fas fa-play"></i>' + item.cmd); // Ajout de l'icône play avant le texte
+      $("#buttonContainer").append(button);
     });
   });
 
@@ -55,8 +151,51 @@
 
   // Quand un bouton est cliqué
   $(document).on("click", ".block", function () {
-    const file = $(this).data('path');
+    if (isPlaying) {
+      return;
+    }
+    const file = $(this).data("path");
+    const button = $(this);
+
+    isPlaying = true;
+    // Changer l'icône en "chargement"
+    button.find("i").removeClass("fa-play").addClass("fa-spinner");
+    $(".block").addClass("disabled");
+
+    // Envoyer la commande au serveur
     socket.emit("sound", file);
+
+    // Écouter l'événement de fin de son
+    socket.on("soundFinished", function () {
+      // Revenir à l'icône Play après que le son ait fini
+      button.find("i").removeClass("fa-spinner").addClass("fa-play");
+      $(".block").removeClass("disabled");
+      isPlaying = false;
+    });
+  });
+
+  $("#playYoutubeSound").click(function () {
+    const youtubeUrl = $("#youtubeUrl").val(); // Récupère l'URL de l'input
+
+    // Si l'URL est vide, ne rien faire
+    if (!youtubeUrl) {
+      alert("Veuillez entrer une URL YouTube valide.");
+      return;
+    }
+
+    // Vous pourriez valider l'URL YouTube ici si nécessaire (vérification basique)
+    const youtubeRegex =
+            /^(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/(watch\?v=|embed\/|v\/|e\/|playlist\?list=)([a-zA-Z0-9_-]{11})/;
+    if (!youtubeRegex.test(youtubeUrl)) {
+      alert("L'URL YouTube fournie n'est pas valide.");
+      return;
+    }
+
+    // Si l'URL est valide, émettre l'événement avec l'URL YouTube
+    socket.emit("youtubeSound", youtubeUrl);
+
+    // Optionnel : Vous pouvez ajouter une animation ou une autre interaction
+    $("#youtubeUrl").val(""); // Efface l'input après envoi
   });
 </script>
 </body>
